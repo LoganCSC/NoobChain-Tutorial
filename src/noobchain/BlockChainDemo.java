@@ -1,13 +1,16 @@
 package noobchain;
 
-public class NoobChainDemo {
+import noobchain.model.Block;
+import noobchain.model.BlockChain;
+
+public class BlockChainDemo {
 
     /**
      * Test the block chain by adding blocks to the BLOCK_CHAIN ArrayList.
      */
     public static void main(String[] args) {
 
-        NoobChain chain = new NoobChain(5);
+        BlockChain chain = new BlockChain(5);
 
         System.out.println("Trying to Mine block 1... ");
         chain.addBlock(new Block("Hi, I'm the first block", "0"));
