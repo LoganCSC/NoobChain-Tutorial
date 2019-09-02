@@ -3,10 +3,10 @@ package noobchain;
 public class BlockChainApplication {
 
     /**
-     * Run one or more demos
+     * Run one or more demos.
      */
     public static void main(String[] args) {
-        BlockChainDemo demo = new BlockChainDemo();
+        TransferNoobCoinsDemo demo = new TransferNoobCoinsDemo();
         demo.run();
     }
 }

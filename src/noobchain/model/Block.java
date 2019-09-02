@@ -1,5 +1,7 @@
 package noobchain.model;
 
+import noobchain.model.transaction.Transaction;
+
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -32,13 +34,15 @@ public class Block {
 
     // Increases nonce value until hash target is reached.
     void mineBlock(int difficulty) {
+        long start = System.currentTimeMillis();
         merkleRoot = StringUtil.getMerkleRoot(transactions);
-        String target = StringUtil.getDificultyString(difficulty); // Create a string with difficulty * "0"
+        String target = StringUtil.getDifficultyString(difficulty); // Create a string with difficulty * "0"
         while(!hash.substring( 0, difficulty).equals(target)) {
             nonce ++;
             hash = calculateHash();
         }
-        System.out.println("Block Mined!!! : " + hash);
+        long duration = System.currentTimeMillis() - start;
+        System.out.println("Block Mined!!! : " + hash + " in " + duration + " millis.");
     }
 
     // Add transactions to this block

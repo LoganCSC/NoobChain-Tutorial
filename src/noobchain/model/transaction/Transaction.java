@@ -1,51 +1,54 @@
-package noobchain.model;
+package noobchain.model.transaction;
+import noobchain.model.BlockChain;
+import noobchain.model.StringUtil;
+
 import java.security.*;
 import java.util.ArrayList;
 
 public class Transaction {
 
-    public String transactionId; //Contains a hash of transaction*
-    public PublicKey sender; //Senders address/public key.
-    public PublicKey reciepient; //Recipients address/public key.
-    public float value; //Contains the amount we wish to send to the recipient.
-    public byte[] signature; //This is to prevent anybody else from spending funds in our wallet.
+    public String transactionId; // Contains a hash of transaction*
+    public PublicKey sender; // Senders address/public key.
+    public PublicKey recipient; // Recipients address/public key.
+    public float value; // Contains the amount we wish to send to the recipient.
+    private byte[] signature; // This is to prevent anybody else from spending funds in our wallet.
 
-    public ArrayList<TransactionInput> inputs = new ArrayList<TransactionInput>();
-    public ArrayList<TransactionOutput> outputs = new ArrayList<TransactionOutput>();
+    public ArrayList<TransactionInput> inputs;
+    public ArrayList<TransactionOutput> outputs = new ArrayList<>();
 
     private static int sequence = 0; //A rough count of how many transactions have been generated
 
     // Constructor:
     public Transaction(PublicKey from, PublicKey to, float value,  ArrayList<TransactionInput> inputs) {
         this.sender = from;
-        this.reciepient = to;
+        this.recipient = to;
         this.value = value;
         this.inputs = inputs;
     }
 
     public boolean processTransaction(BlockChain chain) {
 
-        if (verifySignature() == false) {
+        if (!verifySignature()) {
             System.out.println("#Transaction Signature failed to verify");
             return false;
         }
 
         // Gathers transaction inputs (Making sure they are unspent):
-        for(TransactionInput i : inputs) {
+        for (TransactionInput i : inputs) {
             i.UTXO = chain.UTXOs.get(i.transactionOutputId);
         }
 
         // Checks if transaction is valid:
-        if(getInputsValue() < chain.minimumTransaction) {
+        if (getInputsValue() < chain.getMinimumTransaction()) {
             System.out.println("Transaction Inputs too small: " + getInputsValue());
-            System.out.println("Please enter the amount greater than " + chain.minimumTransaction);
+            System.out.println("Please enter the amount greater than " + chain.getMinimumTransaction());
             return false;
         }
 
         //Generate transaction outputs:
         float leftOver = getInputsValue() - value; //get value of inputs then the left over change:
         transactionId = calulateHash();
-        outputs.add(new TransactionOutput( this.reciepient, value,transactionId)); //send value to recipient
+        outputs.add(new TransactionOutput( this.recipient, value,transactionId)); //send value to recipient
         outputs.add(new TransactionOutput( this.sender, leftOver,transactionId)); //send the left over 'change' back to sender
 
         // Add outputs to Unspent list
@@ -72,12 +75,12 @@ public class Transaction {
     }
 
     public void generateSignature(PrivateKey privateKey) {
-        String data = StringUtil.getStringFromKey(sender) + StringUtil.getStringFromKey(reciepient) + Float.toString(value)	;
+        String data = StringUtil.getStringFromKey(sender) + StringUtil.getStringFromKey(recipient) + Float.toString(value)	;
         signature = StringUtil.applyECDSASig(privateKey,data);
     }
 
     public boolean verifySignature() {
-        String data = StringUtil.getStringFromKey(sender) + StringUtil.getStringFromKey(reciepient) + Float.toString(value)	;
+        String data = StringUtil.getStringFromKey(sender) + StringUtil.getStringFromKey(recipient) + Float.toString(value)	;
         return StringUtil.verifyECDSASig(sender, data, signature);
     }
 
@@ -93,7 +96,7 @@ public class Transaction {
         sequence++; //increase the sequence to avoid 2 identical transactions having the same hash
         return StringUtil.applySha256(
                 StringUtil.getStringFromKey(sender) +
-                        StringUtil.getStringFromKey(reciepient) +
+                        StringUtil.getStringFromKey(recipient) +
                         Float.toString(value) + sequence
         );
     }

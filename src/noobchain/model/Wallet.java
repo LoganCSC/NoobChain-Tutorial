@@ -1,4 +1,8 @@
 package noobchain.model;
+import noobchain.model.transaction.Transaction;
+import noobchain.model.transaction.TransactionInput;
+import noobchain.model.transaction.TransactionOutput;
+
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
 import java.util.ArrayList;
@@ -7,12 +11,14 @@ import java.util.Map;
 
 public class Wallet {
 
+    private BlockChain chain;
     public PrivateKey privateKey;
     public PublicKey publicKey;
 
     Map<String,TransactionOutput> UTXOs = new HashMap<>();
 
-    public Wallet() {
+    public Wallet(BlockChain chain) {
+        this.chain = chain;
         generateKeyPair();
     }
 
@@ -33,20 +39,20 @@ public class Wallet {
         }
     }
 
-    public float getBalance(BlockChain chain) {
+    public float getBalance() {
         float total = 0;
         for (Map.Entry<String, TransactionOutput> item: chain.UTXOs.entrySet()){
             TransactionOutput UTXO = item.getValue();
-            if(UTXO.isMine(publicKey)) { //if output belongs to me ( if coins belong to me )
-                UTXOs.put(UTXO.id,UTXO); //add it to our list of unspent transactions.
-                total += UTXO.value ;
+            if(UTXO.isMine(publicKey)) { // if output belongs to me ( if coins belong to me )
+                UTXOs.put(UTXO.id,UTXO); // add it to our list of unspent transactions.
+                total += UTXO.getValue();
             }
         }
         return total;
     }
 
-    public Transaction sendFunds(PublicKey recipient, float value, BlockChain chain) {
-        if (getBalance(chain) < value) {
+    public Transaction sendFunds(PublicKey recipient, float value) {
+        if (getBalance() < value) {
             System.out.println("#Not Enough funds to send transaction. Transaction Discarded.");
             return null;
         }
@@ -55,7 +61,7 @@ public class Wallet {
         float total = 0;
         for (Map.Entry<String, TransactionOutput> item: UTXOs.entrySet()){
             TransactionOutput UTXO = item.getValue();
-            total += UTXO.value;
+            total += UTXO.getValue();
             inputs.add(new TransactionInput(UTXO.id));
             if(total > value) break;
         }

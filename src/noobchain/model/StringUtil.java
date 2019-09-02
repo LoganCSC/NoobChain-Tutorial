@@ -1,6 +1,8 @@
 package noobchain.model;
 
 import com.google.gson.GsonBuilder;
+import noobchain.model.transaction.Transaction;
+
 import java.security.Key;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
@@ -11,10 +13,10 @@ import java.util.Base64;
 import java.util.List;
 
 
-class StringUtil {
+public class StringUtil {
 
     // Applies Sha256 to a string and returns the result.
-    static String applySha256(String input){
+    public static String applySha256(String input){
 
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -36,7 +38,7 @@ class StringUtil {
     }
 
     // Applies ECDSA Signature and returns the result ( as bytes ).
-    static byte[] applyECDSASig(PrivateKey privateKey, String input) {
+    public static byte[] applyECDSASig(PrivateKey privateKey, String input) {
         Signature dsa;
         byte[] output = new byte[0];
         try {
@@ -52,7 +54,7 @@ class StringUtil {
     }
 
     // Verifies a String signature
-    static boolean verifyECDSASig(PublicKey publicKey, String data, byte[] signature) {
+    public static boolean verifyECDSASig(PublicKey publicKey, String data, byte[] signature) {
         try {
             Signature ecdsaVerify = Signature.getInstance("ECDSA", "BC");
             ecdsaVerify.initVerify(publicKey);
@@ -69,11 +71,11 @@ class StringUtil {
     }
 
     // Returns difficulty string target, to compare to hash. eg difficulty of 5 will return "00000"
-    static String getDificultyString(int difficulty) {
+    static String getDifficultyString(int difficulty) {
         return new String(new char[difficulty]).replace('\0', '0');
     }
 
-    static String getStringFromKey(Key key) {
+    public static String getStringFromKey(Key key) {
         return Base64.getEncoder().encodeToString(key.getEncoded());
     }
 

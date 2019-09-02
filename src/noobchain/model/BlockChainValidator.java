@@ -1,5 +1,9 @@
 package noobchain.model;
 
+import noobchain.model.transaction.Transaction;
+import noobchain.model.transaction.TransactionInput;
+import noobchain.model.transaction.TransactionOutput;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -77,7 +81,7 @@ class BlockChainValidator {
                 return false;
             }
 
-            if (input.UTXO.value != tempOutput.value) {
+            if (input.UTXO.getValue() != tempOutput.getValue()) {
                 System.out.println("#Referenced input Transaction(" + id + ") value is Invalid");
                 return false;
             }
@@ -89,11 +93,11 @@ class BlockChainValidator {
             tempUTXOs.put(output.id, output);
         }
 
-        if (transaction.outputs.get(0).reciepient != transaction.reciepient) {
+        if (transaction.outputs.get(0).getRecipient() != transaction.recipient) {
             System.out.println("#Transaction(" + id + ") output recipient is not who it should be");
             return false;
         }
-        if (transaction.outputs.get(1).reciepient != transaction.sender) {
+        if (transaction.outputs.get(1).getRecipient() != transaction.sender) {
             System.out.println("#Transaction(" + id + ") output 'change' is not sender.");
             return false;
         }
