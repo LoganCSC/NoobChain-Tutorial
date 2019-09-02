@@ -1,10 +1,19 @@
 package noobchain.model;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BlockChain {
 
     private ArrayList<Block> BLOCK_CHAIN = new ArrayList<>();
+    public Map<String, TransactionOutput> UTXOs = new HashMap<>();
+    float minimumTransaction = 0.1f;
     private int difficulty;
+
+    public Wallet walletA;
+    public Wallet walletB;
+    public Transaction genesisTransaction;
 
     public BlockChain(int difficulty) {
         this.difficulty = difficulty;
@@ -15,11 +24,11 @@ public class BlockChain {
         return validator.isValid(this);
     }
 
-    public int size() {
+    int size() {
         return BLOCK_CHAIN.size();
     }
 
-    public Block get(int index) {
+    Block get(int index) {
         return BLOCK_CHAIN.get(index);
     }
 
