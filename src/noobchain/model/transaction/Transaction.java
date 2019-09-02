@@ -16,7 +16,7 @@ public class Transaction {
     public ArrayList<TransactionInput> inputs;
     public ArrayList<TransactionOutput> outputs = new ArrayList<>();
 
-    private static int sequence = 0; //A rough count of how many transactions have been generated
+    private static int sequence = 0; // A rough count of how many transactions have been generated
 
     // Constructor:
     public Transaction(PublicKey from, PublicKey to, float value,  ArrayList<TransactionInput> inputs) {
@@ -26,33 +26,40 @@ public class Transaction {
         this.inputs = inputs;
     }
 
-    public boolean processTransaction(BlockChain chain) {
+    /**
+     * Process this transaction on the specified block chain.
+     * @throws IllegalStateException if unable to process
+     */
+    public void processTransaction(BlockChain chain) {
 
         if (!verifySignature()) {
-            System.out.println("#Transaction Signature failed to verify");
-            return false;
+            throw new IllegalStateException(
+                    "#Transaction Signature failed to verify for " + StringUtil.getJson(this));
         }
 
         // Gathers transaction inputs (Making sure they are unspent):
-        for (TransactionInput i : inputs) {
-            i.UTXO = chain.UTXOs.get(i.transactionOutputId);
+        for (TransactionInput input : inputs) {
+            input.UTXO = chain.UTXOs.get(input.transactionOutputId);
         }
 
         // Checks if transaction is valid:
         if (getInputsValue() < chain.getMinimumTransaction()) {
-            System.out.println("Transaction Inputs too small: " + getInputsValue());
-            System.out.println("Please enter the amount greater than " + chain.getMinimumTransaction());
-            return false;
+            throw new IllegalStateException(
+                    "Transaction Inputs too small: " + getInputsValue() + "\n" +
+                    "Please enter the amount greater than " + chain.getMinimumTransaction());
         }
 
-        //Generate transaction outputs:
-        float leftOver = getInputsValue() - value; //get value of inputs then the left over change:
+        // Generate transaction outputs:
+        // get value of inputs then the left over change:
+        float leftOver = getInputsValue() - value;
         transactionId = calulateHash();
-        outputs.add(new TransactionOutput( this.recipient, value,transactionId)); //send value to recipient
-        outputs.add(new TransactionOutput( this.sender, leftOver,transactionId)); //send the left over 'change' back to sender
+        // send value to recipient
+        outputs.add(new TransactionOutput( this.recipient, value, transactionId));
+        // send the left over 'change' back to sender
+        outputs.add(new TransactionOutput( this.sender, leftOver, transactionId));
 
         // Add outputs to Unspent list
-        for(TransactionOutput o : outputs) {
+        for (TransactionOutput o : outputs) {
             chain.UTXOs.put(o.id , o);
         }
 
@@ -61,32 +68,33 @@ public class Transaction {
             if (i.UTXO == null) continue; // if Transaction can't be found skip it
             chain.UTXOs.remove(i.UTXO.id);
         }
-
-        return true;
     }
 
     public float getInputsValue() {
         float total = 0;
         for(TransactionInput i : inputs) {
-            if(i.UTXO == null) continue; //if Transaction can't be found skip it, This behavior may not be optimal.
+            // if Transaction can't be found skip it, This behavior may not be optimal.
+            if (i.UTXO == null) continue;
             total += i.UTXO.value;
         }
         return total;
     }
 
     public void generateSignature(PrivateKey privateKey) {
-        String data = StringUtil.getStringFromKey(sender) + StringUtil.getStringFromKey(recipient) + Float.toString(value)	;
-        signature = StringUtil.applyECDSASig(privateKey,data);
+        signature = StringUtil.applyECDSASig(privateKey, getData());
     }
 
     public boolean verifySignature() {
-        String data = StringUtil.getStringFromKey(sender) + StringUtil.getStringFromKey(recipient) + Float.toString(value)	;
-        return StringUtil.verifyECDSASig(sender, data, signature);
+        return StringUtil.verifyECDSASig(sender, getData(), signature);
+    }
+
+    private String getData() {
+        return StringUtil.getStringFromKey(sender) + StringUtil.getStringFromKey(recipient) + Float.toString(value);
     }
 
     public float getOutputsValue() {
         float total = 0;
-        for(TransactionOutput o : outputs) {
+        for (TransactionOutput o : outputs) {
             total += o.value;
         }
         return total;

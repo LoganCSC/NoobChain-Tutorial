@@ -1,8 +1,11 @@
 package noobchain.model.transaction;
 
 public class TransactionInput {
-    public String transactionOutputId; // Reference to TransactionOutputs -> transactionId
-    public TransactionOutput UTXO; // Contains the Unspent transaction output
+    // Reference to TransactionOutput's transactionId
+    public String transactionOutputId;
+
+    // UTXO = unspent transaction outputs. Contains the Unspent transaction output
+    public TransactionOutput UTXO;
 
     public TransactionInput(String transactionOutputId) {
         this.transactionOutputId = transactionOutputId;

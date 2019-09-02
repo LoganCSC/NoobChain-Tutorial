@@ -1,15 +1,14 @@
 package noobchain.model;
 
 import noobchain.model.transaction.Transaction;
-
-import java.util.ArrayList;
+import noobchain.model.transaction.TransactionList;
 import java.util.Date;
 
 public class Block {
 
     public String hash;
     String previousHash;
-    ArrayList<Transaction> transactions = new ArrayList<>();
+    TransactionList transactions = new TransactionList();
 
     private String merkleRoot;
     private long timeStamp; // number of milliseconds since 1/1/1970.
@@ -35,7 +34,7 @@ public class Block {
     // Increases nonce value until hash target is reached.
     void mineBlock(int difficulty) {
         long start = System.currentTimeMillis();
-        merkleRoot = StringUtil.getMerkleRoot(transactions);
+        merkleRoot = transactions.getMerkleRoot();
         String target = StringUtil.getDifficultyString(difficulty); // Create a string with difficulty * "0"
         while(!hash.substring( 0, difficulty).equals(target)) {
             nonce ++;
@@ -49,9 +48,12 @@ public class Block {
     public boolean addTransaction(Transaction transaction, BlockChain chain) {
         // process transaction and check if valid, unless block is genesis block then ignore.
         if (transaction == null) return false;
-        if ((!"0".equals(previousHash))) {
-            if ((!transaction.processTransaction(chain))) {
-                System.out.println("Transaction failed to process. Discarded.");
+        if (!"0".equals(previousHash)) {
+            try {
+                transaction.processTransaction(chain);
+            } catch (IllegalStateException e) {
+                System.out.println(e.getMessage());
+                System.out.println("Transaction failed to process, so it was discarded.");
                 return false;
             }
         }
