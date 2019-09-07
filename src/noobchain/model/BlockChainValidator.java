@@ -23,7 +23,7 @@ class BlockChainValidator {
             if (!isValidBlock(chain, hashTarget, i))
                 return false;
         }
-        System.out.println("Blockchain is valid");
+        System.out.println("Block chain is valid");
         return true;
     }
 

@@ -8,13 +8,10 @@ import java.util.Map;
 
 public class BlockChain {
 
-    private ArrayList<Block> BLOCK_CHAIN = new ArrayList<>();
+    private ArrayList<Block> blockChain = new ArrayList<>();
     public Map<String, TransactionOutput> UTXOs = new HashMap<>();
     private float minimumTransaction;
     private int difficulty;
-
-    public Wallet walletA;
-    public Wallet walletB;
     public Transaction genesisTransaction;
 
     public BlockChain() {
@@ -32,15 +29,15 @@ public class BlockChain {
     }
 
     int size() {
-        return BLOCK_CHAIN.size();
+        return blockChain.size();
     }
 
     Block get(int index) {
-        return BLOCK_CHAIN.get(index);
+        return blockChain.get(index);
     }
 
     public String getAsJson() {
-        return StringUtil.getJson(BLOCK_CHAIN);
+        return StringUtil.getJson(blockChain);
     }
 
     int getDifficulty() {
@@ -53,6 +50,10 @@ public class BlockChain {
 
     public void addBlock(Block newBlock) {
         newBlock.mineBlock(difficulty);
-        BLOCK_CHAIN.add(newBlock);
+        blockChain.add(newBlock);
+    }
+
+    public Block getLastBlock() {
+        return blockChain.isEmpty() ? null : blockChain.get(blockChain.size() - 1);
     }
 }
