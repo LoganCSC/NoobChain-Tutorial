@@ -2,6 +2,7 @@ package noobchain.model;
 
 import noobchain.model.transaction.Transaction;
 import noobchain.model.transaction.TransactionOutput;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +13,6 @@ public class BlockChain {
     public Map<String, TransactionOutput> UTXOs = new HashMap<>();
     private float minimumTransaction;
     private int difficulty;
-    public Transaction genesisTransaction;
 
     public BlockChain() {
         this.difficulty = 5;
@@ -34,6 +34,10 @@ public class BlockChain {
 
     Block get(int index) {
         return blockChain.get(index);
+    }
+
+    Transaction getGenesisTransaction() {
+        return get(0).transactions.get(0);
     }
 
     public String getAsJson() {

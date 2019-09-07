@@ -16,7 +16,7 @@ class BlockChainValidator {
         String hashTarget = new String(new char[chain.getDifficulty()]).replace('\0', '0');
         // a temporary working list of unspent transactions at a given block state.
         tempUTXOs = new HashMap<>();
-        tempUTXOs.put(chain.genesisTransaction.outputs.get(0).id, chain.genesisTransaction.outputs.get(0));
+        tempUTXOs.put(chain.getGenesisTransaction().outputs.get(0).id, chain.getGenesisTransaction().outputs.get(0));
 
         // loop through block chain to check hashes:
         for (int i = 1; i < chain.size(); i++) {

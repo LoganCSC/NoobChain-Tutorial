@@ -1,7 +1,6 @@
 package noobchain.model.transaction;
 import noobchain.model.BlockChain;
 import noobchain.model.StringUtil;
-
 import java.security.*;
 import java.util.ArrayList;
 

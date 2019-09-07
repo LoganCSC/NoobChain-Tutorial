@@ -12,7 +12,6 @@ class TransferNoobCoinsDemo {
     private Wallet walletA = coinBase.createWallet();
     private Wallet walletB = coinBase.createWallet();
 
-
     void run() {
 
         coinBase.createInitialTransaction(100f, walletA);

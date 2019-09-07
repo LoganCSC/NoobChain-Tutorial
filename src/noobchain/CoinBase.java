@@ -34,25 +34,32 @@ class CoinBase {
      */
     void createInitialTransaction(float numCoins, Wallet wallet) {
 
-        Wallet coinBase = new Wallet(chain);
         Block genesis = new Block("0");
 
-        chain.genesisTransaction = new Transaction(coinBase.getPublicKey(), wallet.getPublicKey(), numCoins, null);
-        // manually sign the genesis transaction with secret private key (keep secret!)
-        chain.genesisTransaction.generateSignature(coinBase.getPrivateKey());
-        chain.genesisTransaction.transactionId = "0"; // manually set the transaction id
+        Transaction genesisTransaction = createGenisisTransaction(numCoins, wallet);
 
-        TransactionOutput genTransaction = new TransactionOutput(chain.genesisTransaction.recipient,
-                chain.genesisTransaction.value, chain.genesisTransaction.transactionId);
-        // manually add the Transactions Output
-        chain.genesisTransaction.outputs.add(genTransaction);
         // its important to store our first transaction in the UTXOs list.
-        chain.UTXOs.put(chain.genesisTransaction.outputs.get(0).id, chain.genesisTransaction.outputs.get(0));
+        chain.UTXOs.put(genesisTransaction.outputs.get(0).id, genesisTransaction.outputs.get(0));
 
         System.out.println("Creating and Mining Genesis block... ");
-        genesis.addTransaction(chain.genesisTransaction, chain);
+        genesis.addTransaction(genesisTransaction, chain);
 
         chain.addBlock(genesis);
+    }
+
+    private Transaction createGenisisTransaction(float numCoins, Wallet wallet) {
+        Wallet coinBase = new Wallet(chain);
+        Transaction genesisTransaction =
+                new Transaction(coinBase.getPublicKey(), wallet.getPublicKey(), numCoins, null);
+        // manually sign the genesis transaction with secret private key (keep secret!)
+        genesisTransaction.generateSignature(coinBase.getPrivateKey());
+        genesisTransaction.transactionId = "0"; // manually set the transaction id
+
+        TransactionOutput genTransaction = new TransactionOutput(genesisTransaction.recipient,
+                genesisTransaction.value, genesisTransaction.transactionId);
+        // manually add the Transactions Output
+        genesisTransaction.outputs.add(genTransaction);
+        return genesisTransaction;
     }
 
     void transfer(Wallet fromWallet, Wallet toWallet, float coins) {
