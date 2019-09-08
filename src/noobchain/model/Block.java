@@ -4,9 +4,9 @@ import noobchain.model.transaction.Transaction;
 import noobchain.model.transaction.TransactionList;
 import java.util.Date;
 
-public class Block {
+class Block {
 
-    public String hash;
+    String hash;
     String previousHash;
     TransactionList transactions = new TransactionList();
 
@@ -15,7 +15,7 @@ public class Block {
     private int nonce;
 
     // Block Constructor.
-    public Block(String previousHash ) {
+    Block(String previousHash ) {
         this.previousHash = previousHash;
         this.timeStamp = new Date().getTime();
         this.hash = calculateHash(); // Making sure we do this after we set the other values.
@@ -45,7 +45,7 @@ public class Block {
     }
 
     // Add transactions to this block
-    public boolean addTransaction(Transaction transaction, BlockChain chain) {
+    boolean addTransaction(Transaction transaction, BlockChain chain) {
         // process transaction and check if valid, unless block is genesis block then ignore.
         if (transaction == null) return false;
         if (!"0".equals(previousHash)) {

@@ -3,12 +3,12 @@ package noobchain.model;
 import noobchain.model.transaction.Transaction;
 import noobchain.model.transaction.TransactionInput;
 import noobchain.model.transaction.TransactionOutput;
-
 import java.util.HashMap;
 import java.util.Map;
 
 class BlockChainValidator {
 
+    // Unspent Transaction Outputs.
     private Map<String, TransactionOutput> tempUTXOs;
 
     boolean isValid(BlockChain chain) {

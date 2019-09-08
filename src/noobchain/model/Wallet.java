@@ -15,22 +15,23 @@ public class Wallet {
     private PublicKey publicKey;
     private PrivateKey privateKey;
 
-    Map<String,TransactionOutput> UTXOs = new HashMap<>();
+    // UTXO = Unspent Transaction Output
+    private Map<String,TransactionOutput> UTXOs = new HashMap<>();
 
-    public Wallet(BlockChain chain) {
+    Wallet(BlockChain chain) {
         this.chain = chain;
         generateKeyPair();
     }
 
-    public PublicKey getPublicKey() {
+    PublicKey getPublicKey() {
         return publicKey;
     }
 
-    public PrivateKey getPrivateKey() {
+    PrivateKey getPrivateKey() {
         return privateKey;
     }
 
-    void generateKeyPair() {
+    private void generateKeyPair() {
         try {
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("ECDSA", "BC");
             SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
@@ -49,7 +50,7 @@ public class Wallet {
 
     public float getBalance() {
         float total = 0;
-        for (Map.Entry<String, TransactionOutput> item: chain.UTXOs.entrySet()){
+        for (Map.Entry<String, TransactionOutput> item: chain.getUnspentTransactionOutputs()){
             TransactionOutput UTXO = item.getValue();
             if(UTXO.isMine(publicKey)) { // if output belongs to me ( if coins belong to me )
                 UTXOs.put(UTXO.id,UTXO); // add it to our list of unspent transactions.
@@ -59,7 +60,7 @@ public class Wallet {
         return total;
     }
 
-    public Transaction sendFunds(PublicKey recipient, float value) {
+    Transaction sendFunds(PublicKey recipient, float value) {
         if (getBalance() < value) {
             System.out.println("#Not Enough funds to send transaction. Transaction Discarded.");
             return null;

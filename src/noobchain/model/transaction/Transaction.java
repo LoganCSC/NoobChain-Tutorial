@@ -1,4 +1,5 @@
 package noobchain.model.transaction;
+
 import noobchain.model.BlockChain;
 import noobchain.model.StringUtil;
 import java.security.*;
@@ -10,7 +11,7 @@ public class Transaction {
     public PublicKey sender; // Senders address/public key.
     public PublicKey recipient; // Recipients address/public key.
     public float value; // Contains the amount we wish to send to the recipient.
-    private byte[] signature; // This is to prevent anybody else from spending funds in our wallet.
+    private EcdsaSignature signature; // This is to prevent anybody else from spending funds in our wallet.
 
     public ArrayList<TransactionInput> inputs;
     public ArrayList<TransactionOutput> outputs = new ArrayList<>();
@@ -38,7 +39,7 @@ public class Transaction {
 
         // Gathers transaction inputs (Making sure they are unspent):
         for (TransactionInput input : inputs) {
-            input.UTXO = chain.UTXOs.get(input.transactionOutputId);
+            input.UTXO = chain.getUnspentTransactionOutput(input);
         }
 
         // Checks if transaction is valid:
@@ -59,13 +60,13 @@ public class Transaction {
 
         // Add outputs to Unspent list
         for (TransactionOutput o : outputs) {
-            chain.UTXOs.put(o.id , o);
+            chain.addUnspentTransactionOutput(o);
         }
 
         // Remove transaction inputs from UTXO lists as spent:
         for(TransactionInput i : inputs) {
             if (i.UTXO == null) continue; // if Transaction can't be found skip it
-            chain.UTXOs.remove(i.UTXO.id);
+            chain.removeUnspentTransactionOutput(i.UTXO.id);
         }
     }
 
@@ -80,11 +81,11 @@ public class Transaction {
     }
 
     public void generateSignature(PrivateKey privateKey) {
-        signature = StringUtil.applyECDSASig(privateKey, getData());
+        signature = new EcdsaSignature(privateKey, getData());
     }
 
     public boolean verifySignature() {
-        return StringUtil.verifyECDSASig(sender, getData(), signature);
+        return signature.verifySignature(sender, getData());
     }
 
     private String getData() {
@@ -100,7 +101,7 @@ public class Transaction {
     }
 
     private String calulateHash() {
-        sequence++; //increase the sequence to avoid 2 identical transactions having the same hash
+        sequence++; // increase the sequence to avoid 2 identical transactions having the same hash
         return StringUtil.applySha256(
                 StringUtil.getStringFromKey(sender) +
                         StringUtil.getStringFromKey(recipient) +

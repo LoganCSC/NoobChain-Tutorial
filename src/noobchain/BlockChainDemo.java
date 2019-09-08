@@ -1,18 +1,21 @@
 package noobchain;
 
+import noobchain.model.CoinBase;
 import noobchain.model.Wallet;
 
 /**
  * Illustrates making transaction involving NoobCoins between block chain based Wallets.
  * Transfers coins from one wallet to another and then back again.
  */
-class TransferNoobCoinsDemo {
+public class BlockChainDemo {
 
+    // trusted provider that hides the details of transactions
     private CoinBase coinBase = new CoinBase();
+
     private Wallet walletA = coinBase.createWallet();
     private Wallet walletB = coinBase.createWallet();
 
-    void run() {
+    private void run() {
 
         coinBase.createInitialTransaction(100f, walletA);
 
@@ -31,9 +34,15 @@ class TransferNoobCoinsDemo {
         showBalances();
     }
 
-
     private void showBalances() {
         System.out.println("\nWalletA's balance is: " + walletA.getBalance());
         System.out.println("WalletB's balance is: " + walletB.getBalance());
+    }
+
+    /**
+     * Run the demo.
+     */
+    public static void main(String[] args) {
+        new BlockChainDemo().run();
     }
 }
