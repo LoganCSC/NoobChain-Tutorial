@@ -40,7 +40,7 @@ public class BlockChain {
     }
 
     Transaction getGenesisTransaction() {
-        return get(0).transactions.get(0);
+        return get(0).getTransaction(0);
     }
 
     /** @return the serialized blockChain */

@@ -52,8 +52,8 @@ class BlockChainValidator {
 
     private boolean hasValidTransactions(Block currentBlock) {
         // loop through the blockchain's transactions and verify each one:
-        for (int t = 0; t < currentBlock.transactions.size(); t++) {
-            Transaction currentTransaction = currentBlock.transactions.get(t);
+        for (int t = 0; t < currentBlock.numTransactions(); t++) {
+            Transaction currentTransaction = currentBlock.getTransaction(t);
             if (!isValidTransaction(currentTransaction)) {
                 return false;
             }

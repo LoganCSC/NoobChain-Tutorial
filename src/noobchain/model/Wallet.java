@@ -52,7 +52,7 @@ public class Wallet {
         float total = 0;
         for (Map.Entry<String, TransactionOutput> item: chain.getUnspentTransactionOutputs()){
             TransactionOutput UTXO = item.getValue();
-            if(UTXO.isMine(publicKey)) { // if output belongs to me ( if coins belong to me )
+            if (UTXO.isMine(publicKey)) { // if output belongs to me ( if coins belong to me )
                 UTXOs.put(UTXO.id,UTXO); // add it to our list of unspent transactions.
                 total += UTXO.getValue();
             }
@@ -65,14 +65,14 @@ public class Wallet {
             System.out.println("#Not Enough funds to send transaction. Transaction Discarded.");
             return null;
         }
-        ArrayList<TransactionInput> inputs = new ArrayList<TransactionInput>();
+        ArrayList<TransactionInput> inputs = new ArrayList<>();
 
         float total = 0;
         for (Map.Entry<String, TransactionOutput> item: UTXOs.entrySet()){
             TransactionOutput UTXO = item.getValue();
             total += UTXO.getValue();
             inputs.add(new TransactionInput(UTXO.id));
-            if(total > value) break;
+            if (total > value) break;
         }
 
         Transaction newTransaction = new Transaction(publicKey, recipient , value, inputs);
@@ -84,5 +84,4 @@ public class Wallet {
 
         return newTransaction;
     }
-
 }

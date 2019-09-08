@@ -8,8 +8,8 @@ class Block {
 
     String hash;
     String previousHash;
-    TransactionList transactions = new TransactionList();
 
+    private TransactionList transactions = new TransactionList();
     private String merkleRoot;
     private long timeStamp; // number of milliseconds since 1/1/1970.
     private int nonce;
@@ -35,7 +35,7 @@ class Block {
     void mineBlock(int difficulty) {
         long start = System.currentTimeMillis();
         merkleRoot = transactions.getMerkleRoot();
-        String target = StringUtil.getDifficultyString(difficulty); // Create a string with difficulty * "0"
+        String target = getDifficultyString(difficulty); // Create a string with difficulty * "0"
         while(!hash.substring( 0, difficulty).equals(target)) {
             nonce ++;
             hash = calculateHash();
@@ -61,5 +61,18 @@ class Block {
         transactions.add(transaction);
         System.out.println("Transaction Successfully added to Block");
         return true;
+    }
+
+    // Returns difficulty string target, to compare to hash. eg difficulty of 5 will return "00000"
+    private String getDifficultyString(int difficulty) {
+        return new String(new char[difficulty]).replace('\0', '0');
+    }
+
+    int numTransactions() {
+        return transactions.size();
+    }
+
+    Transaction getTransaction(int i) {
+        return transactions.get(i);
     }
 }
