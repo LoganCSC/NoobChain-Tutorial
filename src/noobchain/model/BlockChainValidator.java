@@ -89,7 +89,7 @@ class BlockChainValidator {
             tempUTXOs.remove(input.transactionOutputId);
         }
 
-        for(TransactionOutput output: transaction.outputs) {
+        for (TransactionOutput output: transaction.outputs) {
             tempUTXOs.put(output.id, output);
         }
 

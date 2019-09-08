@@ -35,43 +35,7 @@ public class Transaction {
      * @throws IllegalStateException if unable to process
      */
     public void processTransaction(BlockChain chain) {
-
-        if (!verifySignature()) {
-            throw new IllegalStateException(
-                    "#Transaction Signature failed to verify for " + StringUtil.getJson(this));
-        }
-
-        // Gathers transaction inputs (Making sure they are unspent):
-        for (TransactionInput input : inputs) {
-            input.UTXO = chain.getUnspentTransactionOutput(input);
-        }
-
-        // Checks if transaction is valid:
-        if (getInputsValue() < chain.getMinimumTransaction()) {
-            throw new IllegalStateException(
-                    "Transaction Inputs too small: " + getInputsValue() + "\n" +
-                    "Please enter the amount greater than " + chain.getMinimumTransaction());
-        }
-
-        // Generate transaction outputs:
-        // get value of inputs then the left over change:
-        float leftOver = getInputsValue() - value;
-        transactionId = calulateHash();
-        // send value to recipient
-        outputs.add(new TransactionOutput( this.recipient, value, transactionId));
-        // send the left over 'change' back to sender
-        outputs.add(new TransactionOutput( this.sender, leftOver, transactionId));
-
-        // Add outputs to Unspent list
-        for (TransactionOutput o : outputs) {
-            chain.addUnspentTransactionOutput(o);
-        }
-
-        // Remove transaction inputs from UTXO lists as spent:
-        for(TransactionInput i : inputs) {
-            if (i.UTXO == null) continue; // if Transaction can't be found skip it
-            chain.removeUnspentTransactionOutput(i.UTXO.id);
-        }
+        new TransactionProcessor().process(this, chain);
     }
 
     public float getInputsValue() {
@@ -104,7 +68,7 @@ public class Transaction {
         return total;
     }
 
-    private String calulateHash() {
+    String calulateHash() {
         sequence++; // increase the sequence to avoid 2 identical transactions having the same hash
         return StringUtil.applySha256(
                 getStringFromKey(sender) +
