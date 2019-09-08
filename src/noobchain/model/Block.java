@@ -1,54 +1,28 @@
 package noobchain.model;
 
 import noobchain.model.transaction.Transaction;
-import noobchain.model.transaction.TransactionList;
-import java.util.Date;
 
 class Block {
 
     String hash;
-    String previousHash;
-
-    private TransactionList transactions = new TransactionList();
-    private String merkleRoot;
-    private long timeStamp; // number of milliseconds since 1/1/1970.
-    private int nonce;
+    private BlockMiner miner;
 
     // Block Constructor.
-    Block(String previousHash ) {
-        this.previousHash = previousHash;
-        this.timeStamp = new Date().getTime();
-        this.hash = calculateHash(); // Making sure we do this after we set the other values.
-    }
-
-    //Calculate new hash based on blocks contents
-    String calculateHash() {
-        return StringUtil.applySha256(
-                previousHash +
-                        Long.toString(timeStamp) +
-                        Integer.toString(nonce) +
-                        merkleRoot
-        );
+    Block(String previousHash) {
+        miner = new BlockMiner(previousHash);
+        this.hash = miner.calculateHash();
     }
 
     // Increases nonce value until hash target is reached.
     void mineBlock(int difficulty) {
-        long start = System.currentTimeMillis();
-        merkleRoot = transactions.getMerkleRoot();
-        String target = getDifficultyString(difficulty); // Create a string with difficulty * "0"
-        while(!hash.substring( 0, difficulty).equals(target)) {
-            nonce ++;
-            hash = calculateHash();
-        }
-        long duration = System.currentTimeMillis() - start;
-        System.out.println("Block Mined!!! : " + hash + " in " + duration + " millis.");
+        hash = miner.mineBlock(hash, difficulty);
     }
 
     // Add transactions to this block
     boolean addTransaction(Transaction transaction, BlockChain chain) {
         // process transaction and check if valid, unless block is genesis block then ignore.
         if (transaction == null) return false;
-        if (!"0".equals(previousHash)) {
+        if (!"0".equals(miner.previousHash)) {
             try {
                 transaction.processTransaction(chain);
             } catch (IllegalStateException e) {
@@ -58,21 +32,24 @@ class Block {
             }
         }
 
-        transactions.add(transaction);
+        miner.transactions.add(transaction);
         System.out.println("Transaction Successfully added to Block");
         return true;
     }
 
-    // Returns difficulty string target, to compare to hash. eg difficulty of 5 will return "00000"
-    private String getDifficultyString(int difficulty) {
-        return new String(new char[difficulty]).replace('\0', '0');
-    }
-
     int numTransactions() {
-        return transactions.size();
+        return miner.transactions.size();
     }
 
     Transaction getTransaction(int i) {
-        return transactions.get(i);
+        return miner.transactions.get(i);
+    }
+
+    boolean isValidateHash() {
+        return hash.equals(miner.calculateHash());
+    }
+
+    String getPreviousHash() {
+        return miner.previousHash;
     }
 }

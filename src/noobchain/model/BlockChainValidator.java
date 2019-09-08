@@ -32,12 +32,12 @@ class BlockChainValidator {
         Block previousBlock = chain.get(i-1);
 
         // compare registered hash and calculated hash:
-        if (!currentBlock.hash.equals(currentBlock.calculateHash()) ){
+        if (!currentBlock.isValidateHash()){
             System.out.println("#Current Hashes not equal");
             return false;
         }
         // compare previous hash and registered previous hash
-        if (!previousBlock.hash.equals(currentBlock.previousHash) ) {
+        if (!previousBlock.hash.equals(currentBlock.getPreviousHash()) ) {
             System.out.println("#Previous Hashes not equal");
             return false;
         }

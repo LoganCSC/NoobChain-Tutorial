@@ -24,10 +24,6 @@ class EcdsaSignature {
         }
     }
 
-    byte[] getSignature(PrivateKey privateKey, String input) {
-        return signature;
-    }
-
     // Verifies a String signature
     boolean verifySignature(PublicKey publicKey, String data) {
         try {
