@@ -1,9 +1,7 @@
 package noobchain.model;
 
 import com.google.gson.GsonBuilder;
-import java.security.Key;
 import java.security.MessageDigest;
-import java.util.Base64;
 
 public class StringUtil {
 
@@ -32,9 +30,5 @@ public class StringUtil {
     // Short hand helper to turn Object into a json string
     public static String getJson(Object o) {
         return new GsonBuilder().setPrettyPrinting().create().toJson(o);
-    }
-
-    public static String getStringFromKey(Key key) {
-        return Base64.getEncoder().encodeToString(key.getEncoded());
     }
 }

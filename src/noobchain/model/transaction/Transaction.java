@@ -4,6 +4,7 @@ import noobchain.model.BlockChain;
 import noobchain.model.StringUtil;
 import java.security.*;
 import java.util.ArrayList;
+import java.util.Base64;
 
 public class Transaction {
 
@@ -89,7 +90,7 @@ public class Transaction {
     }
 
     private String getData() {
-        return StringUtil.getStringFromKey(sender) + StringUtil.getStringFromKey(recipient) + Float.toString(value);
+        return getStringFromKey(sender) + getStringFromKey(recipient) + Float.toString(value);
     }
 
     public float getOutputsValue() {
@@ -103,9 +104,13 @@ public class Transaction {
     private String calulateHash() {
         sequence++; // increase the sequence to avoid 2 identical transactions having the same hash
         return StringUtil.applySha256(
-                StringUtil.getStringFromKey(sender) +
-                        StringUtil.getStringFromKey(recipient) +
+                getStringFromKey(sender) +
+                        getStringFromKey(recipient) +
                         Float.toString(value) + sequence
         );
+    }
+
+    static String getStringFromKey(Key key) {
+        return Base64.getEncoder().encodeToString(key.getEncoded());
     }
 }
