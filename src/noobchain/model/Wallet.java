@@ -1,22 +1,24 @@
 package noobchain.model;
+
 import noobchain.model.transaction.Transaction;
 import noobchain.model.transaction.TransactionInput;
 import noobchain.model.transaction.TransactionOutput;
+import noobchain.model.transaction.UtxoMap;
 
-import java.security.*;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.spec.ECGenParameterSpec;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 public class Wallet {
 
     private BlockChain chain;
     private PublicKey publicKey;
     private PrivateKey privateKey;
-
-    // UTXO = Unspent Transaction Output
-    private Map<String,TransactionOutput> UTXOs = new HashMap<>();
+    private UtxoMap utxoMap = new UtxoMap();
 
     Wallet(BlockChain chain) {
         this.chain = chain;
@@ -25,10 +27,6 @@ public class Wallet {
 
     PublicKey getPublicKey() {
         return publicKey;
-    }
-
-    PrivateKey getPrivateKey() {
-        return privateKey;
     }
 
     private void generateKeyPair() {
@@ -50,14 +48,30 @@ public class Wallet {
 
     public float getBalance() {
         float total = 0;
-        for (Map.Entry<String, TransactionOutput> item: chain.getUnspentTransactionOutputs()){
-            TransactionOutput UTXO = item.getValue();
-            if (UTXO.isMine(publicKey)) { // if output belongs to me ( if coins belong to me )
-                UTXOs.put(UTXO.id,UTXO); // add it to our list of unspent transactions.
-                total += UTXO.getValue();
+        for (TransactionOutput utxo: chain.getUnspentTransactionOutputs()){
+            if (utxo.isMine(publicKey)) { // if output belongs to me (if coins belong to me)
+                utxoMap.add(utxo); // add it to our list of unspent transactions.
+                total += utxo.getValue();
             }
         }
         return total;
+    }
+
+    /**
+     * Means to create some initial money. A better way would be to mine it
+     */
+    Transaction createGenesisTransaction(float numCoins, Wallet wallet) {
+        Transaction transaction =
+                new Transaction(getPublicKey(), wallet.getPublicKey(), numCoins, null);
+        // manually sign the genesis transaction with our secret private key
+        transaction.generateSignature(privateKey);
+        transaction.transactionId = "0"; // manually set the transaction id
+
+        TransactionOutput genTransaction = new TransactionOutput(transaction.recipient,
+                transaction.value, transaction.transactionId);
+        // manually add the Transactions Output
+        transaction.outputs.add(genTransaction);
+        return transaction;
     }
 
     Transaction sendFunds(PublicKey recipient, float value) {
@@ -65,21 +79,13 @@ public class Wallet {
             System.out.println("#Not Enough funds to send transaction. Transaction Discarded.");
             return null;
         }
-        ArrayList<TransactionInput> inputs = new ArrayList<>();
-
-        float total = 0;
-        for (Map.Entry<String, TransactionOutput> item: UTXOs.entrySet()){
-            TransactionOutput UTXO = item.getValue();
-            total += UTXO.getValue();
-            inputs.add(new TransactionInput(UTXO.id));
-            if (total > value) break;
-        }
+        List<TransactionInput> inputs = utxoMap.getTransactionInputs(value);
 
         Transaction newTransaction = new Transaction(publicKey, recipient , value, inputs);
         newTransaction.generateSignature(privateKey);
 
-        for(TransactionInput input: inputs){
-            UTXOs.remove(input.transactionOutputId);
+        for (TransactionInput input: inputs){
+            utxoMap.remove(input.transactionOutputId);
         }
 
         return newTransaction;

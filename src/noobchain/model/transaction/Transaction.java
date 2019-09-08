@@ -2,9 +2,12 @@ package noobchain.model.transaction;
 
 import noobchain.model.BlockChain;
 import noobchain.model.StringUtil;
-import java.security.*;
+import java.security.Key;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 public class Transaction {
 
@@ -14,13 +17,13 @@ public class Transaction {
     public float value; // Contains the amount we wish to send to the recipient.
     private EcdsaSignature signature; // This is to prevent anybody else from spending funds in our wallet.
 
-    public ArrayList<TransactionInput> inputs;
-    public ArrayList<TransactionOutput> outputs = new ArrayList<>();
+    public List<TransactionInput> inputs;
+    public List<TransactionOutput> outputs = new ArrayList<>();
 
     private static int sequence = 0; // A rough count of how many transactions have been generated
 
     // Constructor:
-    public Transaction(PublicKey from, PublicKey to, float value,  ArrayList<TransactionInput> inputs) {
+    public Transaction(PublicKey from, PublicKey to, float value,  List<TransactionInput> inputs) {
         this.sender = from;
         this.recipient = to;
         this.value = value;

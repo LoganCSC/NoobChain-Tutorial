@@ -3,16 +3,15 @@ package noobchain.model;
 import noobchain.model.transaction.Transaction;
 import noobchain.model.transaction.TransactionInput;
 import noobchain.model.transaction.TransactionOutput;
+import noobchain.model.transaction.UtxoMap;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.Collection;
 
 public class BlockChain {
 
     private ArrayList<Block> blockChain = new ArrayList<>();
-    private Map<String, TransactionOutput> UTXOs = new HashMap<>();
+    private UtxoMap utxoMap = new UtxoMap();
     private float minimumTransaction;
     private int difficulty;
 
@@ -66,18 +65,18 @@ public class BlockChain {
     }
 
     public void addUnspentTransactionOutput(TransactionOutput xo) {
-        UTXOs.put(xo.id, xo);
+        utxoMap.add(xo);
     }
 
-    Set<Map.Entry<String, TransactionOutput>> getUnspentTransactionOutputs() {
-        return UTXOs.entrySet();
+    Collection<TransactionOutput> getUnspentTransactionOutputs() {
+        return utxoMap.getUnspentTransactionOutputs();
     }
 
     public TransactionOutput getUnspentTransactionOutput(TransactionInput input) {
-        return UTXOs.get(input.transactionOutputId);
+        return utxoMap.get(input.transactionOutputId);
     }
 
     public TransactionOutput removeUnspentTransactionOutput(String id) {
-        return UTXOs.remove(id);
+        return utxoMap.remove(id);
     }
 }

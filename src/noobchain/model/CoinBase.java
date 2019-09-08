@@ -1,7 +1,7 @@
 package noobchain.model;
 
 import noobchain.model.transaction.Transaction;
-import noobchain.model.transaction.TransactionOutput;
+
 import java.security.Security;
 
 /**
@@ -33,13 +33,14 @@ public class CoinBase {
 
         Block genesis = new Block("0");
 
-        Transaction genesisTransaction = createGenisisTransaction(numCoins, wallet);
+        Wallet coinBase = createWallet();
+        Transaction genesisTxn = coinBase.createGenesisTransaction(numCoins, wallet);
 
         // its important to store our first transaction in the UTXOs list.
-        chain.addUnspentTransactionOutput(genesisTransaction.outputs.get(0));
+        chain.addUnspentTransactionOutput(genesisTxn.outputs.get(0));
 
         System.out.println("Creating and Mining Genesis block... ");
-        genesis.addTransaction(genesisTransaction, chain);
+        genesis.addTransaction(genesisTxn, chain);
 
         chain.addBlock(genesis);
     }
@@ -49,20 +50,5 @@ public class CoinBase {
         block.addTransaction(fromWallet.sendFunds(toWallet.getPublicKey(), coins), chain);
         chain.addBlock(block);
         assert(chain.isChainValid());
-    }
-
-    private Transaction createGenisisTransaction(float numCoins, Wallet wallet) {
-        Wallet coinBase = new Wallet(chain);
-        Transaction genesisTransaction =
-                new Transaction(coinBase.getPublicKey(), wallet.getPublicKey(), numCoins, null);
-        // manually sign the genesis transaction with secret private key (keep secret!)
-        genesisTransaction.generateSignature(coinBase.getPrivateKey());
-        genesisTransaction.transactionId = "0"; // manually set the transaction id
-
-        TransactionOutput genTransaction = new TransactionOutput(genesisTransaction.recipient,
-                genesisTransaction.value, genesisTransaction.transactionId);
-        // manually add the Transactions Output
-        genesisTransaction.outputs.add(genTransaction);
-        return genesisTransaction;
     }
 }
